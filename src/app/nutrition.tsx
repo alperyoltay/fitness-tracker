@@ -8,8 +8,10 @@ import { Spacing } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'react-native';
 import { ProgressBar } from '../components/ProgressBar';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function NutritionScreen() {
+  const { t, tc } = useLanguage();
   const safeAreaInsets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -68,9 +70,9 @@ export default function NutritionScreen() {
     >
       {/* Target Macros Display (Apple Health style details card) */}
       <View style={cardStyle}>
-        <Text style={[styles.cardTitle, textStyle]}>Bugünün Makro Hedefleri</Text>
+        <Text style={[styles.cardTitle, textStyle]}>{t.todayMacroTargets}</Text>
         <Text style={[styles.cardSubtitle, secondaryTextStyle]}>
-          {currentWeek}. Hafta • Günlük Kalori & Protein Aşama Hedefi
+          {t.weekTargetSubtitle(currentWeek)}
         </Text>
         
         <View style={styles.macroDashboard}>
@@ -79,7 +81,7 @@ export default function NutritionScreen() {
               {caloriesConsumed} <Text style={styles.macroUnit}>/ {dailyCalorieTarget} kcal</Text>
             </Text>
             <ProgressBar progress={calorieProgress} color="#FF9500" showPercentage={false} />
-            <Text style={[styles.macroLabel, secondaryTextStyle]}>Alınan Kalori</Text>
+            <Text style={[styles.macroLabel, secondaryTextStyle]}>{t.caloriesTaken}</Text>
           </View>
           
           <View style={styles.macroColumn}>
@@ -87,13 +89,13 @@ export default function NutritionScreen() {
               {proteinConsumed} <Text style={styles.macroUnit}>/ {dailyProteinTarget} g</Text>
             </Text>
             <ProgressBar progress={proteinProgress} color="#34C759" showPercentage={false} />
-            <Text style={[styles.macroLabel, secondaryTextStyle]}>Alınan Protein</Text>
+            <Text style={[styles.macroLabel, secondaryTextStyle]}>{t.proteinTaken}</Text>
           </View>
         </View>
       </View>
 
       {/* Menu Template Selection */}
-      <Text style={[styles.sectionTitle, textStyle]}>Günlük Menü Şablonu Seçin</Text>
+      <Text style={[styles.sectionTitle, textStyle]}>{t.chooseMenu}</Text>
       <View style={styles.menuSelector}>
         {MENU_TEMPLATES.map((menu) => {
           const isSelected = menu.id === activeMenuId;
@@ -128,7 +130,7 @@ export default function NutritionScreen() {
                   }
                 ]}
               >
-                {menu.name.split(' ')[0]}
+                {tc(menu.name).split(' ')[0]}
               </Text>
               <Text
                 style={[
@@ -144,12 +146,12 @@ export default function NutritionScreen() {
       </View>
 
       {/* Meal Checklist */}
-      <Text style={[styles.sectionTitle, textStyle]}>Öğün Kontrol Listesi</Text>
+      <Text style={[styles.sectionTitle, textStyle]}>{t.mealChecklist}</Text>
       <View style={styles.mealsList}>
         {todayMeals.length === 0 ? (
           <View style={[cardStyle, { alignItems: 'center', paddingVertical: Spacing.four }]}>
             <Text style={[styles.emptyMealsText, secondaryTextStyle]}>
-              Lütfen yukarıdan bir menü seçin.
+              {t.selectMenuPrompt}
             </Text>
           </View>
         ) : (
@@ -181,7 +183,7 @@ export default function NutritionScreen() {
                       meal.completed && styles.completedText
                     ]}
                   >
-                    {meal.name}
+                    {tc(meal.name)}
                   </Text>
                   <Text style={[styles.mealSpecs, secondaryTextStyle]}>
                     {meal.calories} kcal • {meal.protein}g Protein
@@ -190,19 +192,19 @@ export default function NutritionScreen() {
               </View>
 
               <Text style={[styles.mealDescription, secondaryTextStyle]}>
-                {meal.description}
+                {tc(meal.description)}
               </Text>
 
               {/* Display ingredients that will deduct from stock */}
               <View style={[styles.ingredientsPanel, { backgroundColor: isDark ? '#2C2C2E' : '#F2F2F7' }]}>
                 <Text style={[styles.ingredientsTitle, textStyle]}>
-                  Stoktan düşecek malzemeler:
+                  {t.ingredientsToDeduct}
                 </Text>
                 <View style={styles.ingredientsRow}>
                   {meal.ingredients.map((ing: Ingredient, idx: number) => (
                     <View key={ing.name + idx} style={styles.ingredientTag}>
                       <Text style={styles.ingredientTagText}>
-                        {ing.name} ({ing.amount})
+                        {tc(ing.name)} ({tc(ing.amount)})
                       </Text>
                     </View>
                   ))}

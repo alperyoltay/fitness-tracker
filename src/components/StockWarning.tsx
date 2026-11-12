@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text, Pressable } from 'react-native';
 import { Spacing } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface StockWarningProps {
   lowStockItems: Array<{
@@ -14,23 +15,24 @@ interface StockWarningProps {
 }
 
 export const StockWarning: React.FC<StockWarningProps> = ({ lowStockItems, onPress }) => {
+  const { t, tc } = useLanguage();
   if (lowStockItems.length === 0) return null;
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.container, pressed && styles.pressed]}>
       <View style={styles.header}>
         <Ionicons name="warning" size={18} color="#FF9500" />
-        <Text style={styles.title}>Stok Uyarısı</Text>
+        <Text style={styles.title}>{t.stockWarning}</Text>
       </View>
       <Text style={styles.description}>
-        Aşağıdaki malzemeleriniz kritik seviyenin altında. Satın almanız önerilir:
+        {t.stockWarningDescription}
       </Text>
       <View style={styles.list}>
         {lowStockItems.map((item, index) => (
           <View key={item.name} style={styles.itemRow}>
-            <Text style={styles.itemName}>• {item.name}</Text>
+            <Text style={styles.itemName}>• {tc(item.name)}</Text>
             <Text style={styles.itemQuantity}>
-              Kalan: {item.quantity} {item.unit} (Kritik: {item.minAlertThreshold} {item.unit})
+              {t.remaining}: {item.quantity} {tc(item.unit)} ({t.critical}: {item.minAlertThreshold} {tc(item.unit)})
             </Text>
           </View>
         ))}

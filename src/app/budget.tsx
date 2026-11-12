@@ -5,10 +5,12 @@ import { useAppStore } from '../store/appStore';
 import { Spacing } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'react-native';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const BUDGET_WARNING_THRESHOLD_TL = 300;
 
 export default function BudgetScreen() {
+  const { t, tc } = useLanguage();
   const safeAreaInsets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -41,9 +43,9 @@ export default function BudgetScreen() {
     const parsedPrice = parseFloat(priceInputText.trim());
     if (isNaN(parsedPrice) || parsedPrice < 0) {
       if (Platform.OS === 'web') {
-        alert('Lütfen geçerli bir fiyat girin.');
+        alert(t.invalidPrice);
       } else {
-        Alert.alert('Hata', 'Lütfen geçerli bir fiyat girin.');
+        Alert.alert(t.error, t.invalidPrice);
       }
       return;
     }
@@ -55,23 +57,23 @@ export default function BudgetScreen() {
     const confirmReset = () => {
       resetWeeklyBudget();
       if (Platform.OS === 'web') {
-        alert('Tüm harcamalar sıfırlandı ve liste temizlendi.');
+        alert(t.resetDoneMessage);
       } else {
-        Alert.alert('Sıfırlandı', 'Tüm harcamalar sıfırlandı ve liste temizlendi.');
+        Alert.alert(t.resetDoneTitle, t.resetDoneMessage);
       }
     };
 
     if (Platform.OS === 'web') {
-      if (window.confirm('Haftalık harcama listesini sıfırlamak istiyor musunuz?')) {
+      if (window.confirm(t.confirmResetMessage)) {
         confirmReset();
       }
     } else {
       Alert.alert(
-        'Emin misiniz?',
-        'Haftalık harcama listesini sıfırlamak istiyor musunuz?',
+        t.confirmTitle,
+        t.confirmResetMessage,
         [
-          { text: 'İptal', style: 'cancel' },
-          { text: 'Sıfırla', style: 'destructive', onPress: confirmReset }
+          { text: t.cancel, style: 'cancel' },
+          { text: t.reset, style: 'destructive', onPress: confirmReset }
         ]
       );
     }
@@ -118,7 +120,7 @@ export default function BudgetScreen() {
               { color: activeSubTab === 'shopping' ? '#007AFF' : '#8E8E93' }
             ]}
           >
-            Market Listesi
+            {t.shoppingList}
           </Text>
         </Pressable>
 
@@ -137,7 +139,7 @@ export default function BudgetScreen() {
               { color: activeSubTab === 'stock' ? '#007AFF' : '#8E8E93' }
             ]}
           >
-            Dijital Kiler
+            {t.pantry}
           </Text>
         </Pressable>
       </View>
@@ -155,13 +157,13 @@ export default function BudgetScreen() {
             <View style={cardStyle}>
               <View style={styles.budgetHeader}>
                 <View>
-                  <Text style={[styles.budgetLabel, secondaryTextStyle]}>Harcanan Bütçe</Text>
+                  <Text style={[styles.budgetLabel, secondaryTextStyle]}>{t.spentBudget}</Text>
                   <Text style={[styles.budgetAmount, textStyle]}>
                     {weeklyBudgetSpent} TL <Text style={styles.limitText}>/ {weeklyBudgetLimit} TL</Text>
                   </Text>
                 </View>
                 <Pressable style={styles.resetBtn} onPress={handleResetBudget}>
-                  <Text style={styles.resetBtnText}>Sıfırla</Text>
+                  <Text style={styles.resetBtnText}>{t.reset}</Text>
                 </Pressable>
               </View>
 
@@ -170,14 +172,14 @@ export default function BudgetScreen() {
                 <View style={styles.spendAlert}>
                   <Ionicons name="alert-circle" size={16} color="#FF3B30" />
                   <Text style={styles.spendAlertText}>
-                    Dikkat: Günlük bütçe limitini (300 TL) aştınız!
+                    {t.dailyLimitWarning}
                   </Text>
                 </View>
               )}
             </View>
 
             {/* Shopping List Rows */}
-            <Text style={[styles.sectionTitle, textStyle]}>Haftalık Malzeme Alışverişi</Text>
+            <Text style={[styles.sectionTitle, textStyle]}>{t.weeklyShopping}</Text>
             <View style={styles.shoppingList}>
               {shoppingList.map((item) => (
                 <View key={item.id} style={cardStyle}>
@@ -209,10 +211,10 @@ export default function BudgetScreen() {
                           item.purchased && styles.completedText
                         ]}
                       >
-                        {item.name}
+                        {tc(item.name)}
                       </Text>
                       <Text style={[styles.itemSubName, secondaryTextStyle]}>
-                        {item.quantity} • {item.market} Marketi • Protein: {item.protein}g
+                        {t.itemDetails(tc(item.quantity), tc(item.market), item.protein)}
                       </Text>
                     </View>
 
@@ -246,9 +248,9 @@ export default function BudgetScreen() {
                     <Ionicons name="document-text-outline" size={14} color="#8E8E93" />
                     <TextInput
                       style={[styles.notesInput, { color: textStyle.color }]}
-                      placeholder="Alışveriş notu ekleyin..."
+                      placeholder={t.notePlaceholder}
                       placeholderTextColor="#8E8E93"
-                      value={item.notes}
+                      value={tc(item.notes)}
                       onChangeText={(text) => updateShoppingItemNotes(item.id, text)}
                     />
                   </View>
@@ -259,9 +261,9 @@ export default function BudgetScreen() {
         ) : (
           /* Pantry Inventory Content */
           <View style={styles.stockSection}>
-            <Text style={[styles.sectionTitle, textStyle]}>Dijital Stok Listesi</Text>
+            <Text style={[styles.sectionTitle, textStyle]}>{t.digitalStockList}</Text>
             <Text style={[styles.sectionSubtitle, secondaryTextStyle]}>
-              Satın aldığınız ürünler buraya eklenir, öğünlerinizi tükettikçe stoktan düşer.
+              {t.stockSubtitle}
             </Text>
 
             <View style={styles.stockList}>
@@ -272,15 +274,15 @@ export default function BudgetScreen() {
                     <View style={styles.stockRow}>
                       <View style={{ flex: 1 }}>
                         <View style={styles.stockNameRow}>
-                          <Text style={[styles.stockName, textStyle]}>{item.name}</Text>
+                          <Text style={[styles.stockName, textStyle]}>{tc(item.name)}</Text>
                           {isLow && (
                             <View style={styles.lowStockBadge}>
-                              <Text style={styles.lowStockBadgeText}>Azalıyor</Text>
+                              <Text style={styles.lowStockBadgeText}>{t.lowStock}</Text>
                             </View>
                           )}
                         </View>
                         <Text style={[styles.stockThresholdText, secondaryTextStyle]}>
-                          Kritik Sınır: {item.minAlertThreshold} {item.unit}
+                          {t.criticalLimit}: {item.minAlertThreshold} {tc(item.unit)}
                         </Text>
                       </View>
 
@@ -294,7 +296,7 @@ export default function BudgetScreen() {
                         </Pressable>
 
                         <Text style={[styles.stockQuantityText, textStyle, isLow && { color: '#FF9500', fontWeight: '700' }]}>
-                          {item.quantity} <Text style={styles.unitText}>{item.unit}</Text>
+                          {item.quantity} <Text style={styles.unitText}>{tc(item.unit)}</Text>
                         </Text>
 
                         <Pressable

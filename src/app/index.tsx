@@ -8,11 +8,10 @@ import { StockWarning } from '../components/StockWarning';
 import { Spacing } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'react-native';
-
-const APP_TITLE_PRIMARY = "Atletik Güç";
-const APP_TITLE_SECONDARY = "& Beslenme";
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function DashboardScreen() {
+  const { t, tc } = useLanguage();
   const safeAreaInsets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -41,7 +40,7 @@ export default function DashboardScreen() {
   // Calculate current date display in Turkish
   const getFormattedDate = () => {
     const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date().toLocaleDateString('tr-TR', options);
+    return new Date().toLocaleDateString(t.locale, options);
   };
 
   // Determine current workout completion percentage
@@ -92,18 +91,18 @@ export default function DashboardScreen() {
     const weightNum = parseFloat(weightInput.trim());
     if (isNaN(weightNum) || weightNum <= 0) {
       if (Platform.OS === 'web') {
-        alert('Lütfen geçerli bir kilo değeri girin (Örn: 78.5)');
+        alert(t.invalidWeight);
       } else {
-        Alert.alert('Hata', 'Lütfen geçerli bir kilo değeri girin (Örn: 78.5)');
+        Alert.alert(t.error, t.invalidWeight);
       }
       return;
     }
     addWeightRecord(weightNum);
     setWeightInput('');
     if (Platform.OS === 'web') {
-      alert('Kilo kaydı başarıyla eklendi.');
+      alert(t.weightAdded);
     } else {
-      Alert.alert('Başarılı', 'Kilo kaydı başarıyla eklendi.');
+      Alert.alert(t.success, t.weightAdded);
     }
   };
 
@@ -139,20 +138,20 @@ export default function DashboardScreen() {
         <View>
           <Text style={[styles.dateText, secondaryTextStyle]}>{getFormattedDate()}</Text>
           <Text style={[styles.welcomeText, textStyle]}>
-            {APP_TITLE_PRIMARY} <Text style={{ color: '#007AFF' }}>{APP_TITLE_SECONDARY}</Text>
+            {t.appTitlePrimary} <Text style={{ color: '#007AFF' }}>{t.appTitleSecondary}</Text>
           </Text>
         </View>
         
         {/* Deload Indicator */}
         {isDeloadWeek && (
           <View style={styles.deloadTag}>
-            <Text style={styles.deloadTagText}>DELOAD HAFTASI</Text>
+            <Text style={styles.deloadTagText}>{t.deloadWeek}</Text>
           </View>
         )}
       </View>
 
       {/* Week Selector */}
-      <Text style={[styles.sectionTitle, textStyle]}>Haftalık Program Gelişimi</Text>
+      <Text style={[styles.sectionTitle, textStyle]}>{t.weeklyProgress}</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.weekSelector}>
         {Array.from({ length: 12 }, (_, i) => i + 1).map((w) => {
           const isSelected = w === currentWeek;
@@ -190,7 +189,7 @@ export default function DashboardScreen() {
                   }
                 ]}
               >
-                Hafta {w}
+                {t.week(w)}
               </Text>
               {isDeload && (
                 <Text
@@ -199,7 +198,7 @@ export default function DashboardScreen() {
                     { color: isSelected ? '#E0F2FE' : '#F57C00' }
                   ]}
                 >
-                  Deload
+                  {t.deload}
                 </Text>
               )}
             </Pressable>
@@ -216,16 +215,16 @@ export default function DashboardScreen() {
         <View style={cardStyle}>
           <View style={styles.cardHeader}>
             <Ionicons name="fitness-outline" size={20} color="#007AFF" />
-            <Text style={[styles.cardTitle, textStyle]}>Bugünün Antrenmanı</Text>
+            <Text style={[styles.cardTitle, textStyle]}>{t.todayWorkout}</Text>
           </View>
           <Text style={[styles.cardSubtitle, secondaryTextStyle]}>
-            {todayWorkout ? `${todayWorkout.name} (${todayTrainingDay})` : 'Bugün Dinlenme Günü'}
+            {todayWorkout ? `${tc(todayWorkout.name)} (${tc(todayTrainingDay)})` : t.restDayToday}
           </Text>
           {todayWorkout ? (
-            <ProgressBar progress={workoutCompletion} color="#007AFF" label="Tamamlanma Oranı" />
+            <ProgressBar progress={workoutCompletion} color="#007AFF" label={t.completionRate} />
           ) : (
             <View style={styles.restDayContainer}>
-              <Text style={styles.restDayText}>Dinlenin, kaslarınız gelişsin!</Text>
+              <Text style={styles.restDayText}>{t.restDayMessage}</Text>
             </View>
           )}
         </View>
@@ -234,21 +233,21 @@ export default function DashboardScreen() {
         <View style={cardStyle}>
           <View style={styles.cardHeader}>
             <Ionicons name="pie-chart-outline" size={20} color="#34C759" />
-            <Text style={[styles.cardTitle, textStyle]}>Beslenme & Makrolar</Text>
+            <Text style={[styles.cardTitle, textStyle]}>{t.nutritionMacros}</Text>
           </View>
           <View style={styles.macroProgressContainer}>
             <View style={{ flex: 1 }}>
               <ProgressBar
                 progress={calorieProgress}
                 color="#FF9500"
-                label={`Kalori: ${caloriesConsumed} / ${dailyCalorieTarget} kcal`}
+                label={`${t.calories}: ${caloriesConsumed} / ${dailyCalorieTarget} kcal`}
               />
             </View>
             <View style={{ flex: 1, marginTop: Spacing.two }}>
               <ProgressBar
                 progress={proteinProgress}
                 color="#34C759"
-                label={`Protein: ${proteinConsumed} / ${dailyProteinTarget} g`}
+                label={`${t.protein}: ${proteinConsumed} / ${dailyProteinTarget} g`}
               />
             </View>
           </View>
@@ -258,24 +257,24 @@ export default function DashboardScreen() {
         <View style={cardStyle}>
           <View style={styles.cardHeader}>
             <Ionicons name="cart-outline" size={20} color="#AF52DE" />
-            <Text style={[styles.cardTitle, textStyle]}>Haftalık Bütçe Durumu</Text>
+            <Text style={[styles.cardTitle, textStyle]}>{t.weeklyBudgetStatus}</Text>
           </View>
           <Text style={[styles.cardSubtitle, secondaryTextStyle]}>
-            Harcanan: {weeklyBudgetSpent} TL / Limit: {weeklyBudgetLimit} TL
+            {t.spentOfLimit(weeklyBudgetSpent, weeklyBudgetLimit)}
           </Text>
-          <ProgressBar progress={budgetProgress} color="#AF52DE" label="Bütçe Kullanımı" />
+          <ProgressBar progress={budgetProgress} color="#AF52DE" label={t.budgetUsage} />
           <Text style={[styles.budgetRemainingText, { color: budgetRemaining < 300 ? '#FF3B30' : '#34C759' }]}>
-            Kalan Bütçe: {budgetRemaining} TL
+            {t.remainingBudget(budgetRemaining)}
           </Text>
         </View>
       </View>
 
       {/* Weight Tracker Section */}
-      <Text style={[styles.sectionTitle, textStyle]}>Kilo & Kalibrasyon Takibi</Text>
+      <Text style={[styles.sectionTitle, textStyle]}>{t.weightTracking}</Text>
       <View style={cardStyle}>
-        <Text style={[styles.weightTitle, textStyle]}>Haftalık Kilo Girin</Text>
+        <Text style={[styles.weightTitle, textStyle]}>{t.enterWeeklyWeight}</Text>
         <Text style={[styles.weightDescription, secondaryTextStyle]}>
-          2 hafta üst üste kilo alımı durduysa, sistem kalori hedefini otomatik olarak +200 kcal artırır.
+          {t.weightDescription}
         </Text>
         
         <View style={styles.weightForm}>
@@ -288,20 +287,20 @@ export default function DashboardScreen() {
                 color: isDark ? '#FFFFFF' : '#000000'
               }
             ]}
-            placeholder="Ağırlık (kg)"
+            placeholder={t.weightPlaceholder}
             placeholderTextColor="#8E8E93"
             keyboardType="decimal-pad"
             value={weightInput}
             onChangeText={setWeightInput}
           />
           <Pressable style={styles.weightSubmitButton} onPress={handleAddWeight}>
-            <Text style={styles.weightSubmitButtonText}>Kaydet</Text>
+            <Text style={styles.weightSubmitButtonText}>{t.save}</Text>
           </Pressable>
         </View>
 
-        <Text style={[styles.historyTitle, textStyle]}>Kilo Kayıt Geçmişi</Text>
+        <Text style={[styles.historyTitle, textStyle]}>{t.weightHistory}</Text>
         {weightHistory.length === 0 ? (
-          <Text style={[styles.emptyText, secondaryTextStyle]}>Henüz kayıt eklenmemiş.</Text>
+          <Text style={[styles.emptyText, secondaryTextStyle]}>{t.noRecords}</Text>
         ) : (
           <View style={styles.historyList}>
             {[...weightHistory].reverse().map((record, index) => (
@@ -313,7 +312,7 @@ export default function DashboardScreen() {
                 ]}
               >
                 <Text style={[styles.historyDate, secondaryTextStyle]}>
-                  {new Date(record.date).toLocaleDateString('tr-TR')}
+                  {new Date(record.date).toLocaleDateString(t.locale)}
                 </Text>
                 <Text style={[styles.historyWeight, textStyle]}>{record.weight.toFixed(1)} kg</Text>
               </View>

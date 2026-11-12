@@ -6,8 +6,10 @@ import { TrainingDay, Exercise } from '../types';
 import { Spacing } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'react-native';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function WorkoutScreen() {
+  const { t, tc } = useLanguage();
   const safeAreaInsets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -80,11 +82,11 @@ export default function WorkoutScreen() {
       // Custom soft web notification or beep
       const synth = window.speechSynthesis;
       if (synth) {
-        const utterance = new SpeechSynthesisUtterance("Dinlenme süresi bitti, setine başla!");
-        utterance.lang = "tr-TR";
+        const utterance = new SpeechSynthesisUtterance(t.restFinishedSpeech);
+        utterance.lang = t.locale;
         synth.speak(utterance);
       } else {
-        alert("Dinlenme süresi bitti! Yeni sete başlayın.");
+        alert(t.restFinishedAlert);
       }
     }
   };
@@ -161,7 +163,7 @@ export default function WorkoutScreen() {
                     }
                   ]}
                 >
-                  {day}
+                  {tc(day)}
                 </Text>
               </Pressable>
             );
@@ -178,9 +180,9 @@ export default function WorkoutScreen() {
       >
         {/* Workout Meta */}
         <View style={styles.workoutMeta}>
-          <Text style={[styles.workoutDayName, textStyle]}>{selectedDay}</Text>
+          <Text style={[styles.workoutDayName, textStyle]}>{tc(selectedDay)}</Text>
           <Text style={[styles.workoutRoutineName, secondaryTextStyle]}>
-            {currentWorkout ? currentWorkout.name : 'Dinlenme & İyileşme'}
+            {currentWorkout ? tc(currentWorkout.name) : t.restAndRecovery}
           </Text>
         </View>
 
@@ -188,9 +190,9 @@ export default function WorkoutScreen() {
         {!currentWorkout || currentWorkout.exercises.length === 0 ? (
           <View style={[cardStyle, styles.restCard]}>
             <Ionicons name="sunny-outline" size={48} color="#FF9500" />
-            <Text style={[styles.restTitle, textStyle]}>Aktif Dinlenme Günü</Text>
+            <Text style={[styles.restTitle, textStyle]}>{t.activeRestDay}</Text>
             <Text style={[styles.restSubtitle, secondaryTextStyle]}>
-              Ağır kaldırmayın. Hafif yürüyüşler ve esneme hareketleri yaparak vücudunuzun toparlanmasına izin verin.
+              {t.activeRestText}
             </Text>
           </View>
         ) : (
@@ -225,10 +227,10 @@ export default function WorkoutScreen() {
                         ex.completed && styles.completedText
                       ]}
                     >
-                      {ex.name}
+                      {tc(ex.name)}
                     </Text>
                     <Text style={[styles.exerciseSpecs, secondaryTextStyle]}>
-                      {ex.sets} Set x {ex.reps}
+                      {t.sets(ex.sets, tc(ex.reps))}
                       {ex.isCompound && ex.targetWeightKg !== undefined && (
                         <Text style={{ color: '#007AFF', fontWeight: '700' }}>
                           {" "}• {ex.targetWeightKg} kg
@@ -240,7 +242,7 @@ export default function WorkoutScreen() {
 
                 {/* Description */}
                 <Text style={[styles.exerciseDescription, secondaryTextStyle]}>
-                  {ex.description}
+                  {tc(ex.description)}
                 </Text>
 
                 {/* Rest & Timer Button */}
@@ -255,13 +257,13 @@ export default function WorkoutScreen() {
                     >
                       <Ionicons name="timer-outline" size={16} color="#007AFF" />
                       <Text style={styles.timerButtonText}>
-                        {ex.restSeconds} sn Dinlenme Süresi
+                        {t.restSeconds(ex.restSeconds)}
                       </Text>
                     </Pressable>
                     
                     {ex.isCompound && (
                       <View style={styles.compoundBadge}>
-                        <Text style={styles.compoundBadgeText}>Bileşik Hareket</Text>
+                        <Text style={styles.compoundBadgeText}>{t.compoundMove}</Text>
                       </View>
                     )}
                   </View>
@@ -285,7 +287,7 @@ export default function WorkoutScreen() {
           ]}
         >
           <View style={styles.timerDockHeader}>
-            <Text style={[styles.timerDockTitle, textStyle]}>Dinlenme Sayacı</Text>
+            <Text style={[styles.timerDockTitle, textStyle]}>{t.restTimer}</Text>
             <Pressable onPress={closeTimer}>
               <Ionicons name="close-circle" size={24} color="#8E8E93" />
             </Pressable>

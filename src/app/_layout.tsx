@@ -5,8 +5,18 @@ import { useColorScheme, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/theme';
 import { AnimatedSplashOverlay } from '../components/animated-icon';
+import { LanguageProvider, LanguageToggle, useLanguage } from '../i18n/LanguageContext';
 
-export default function TabLayout() {
+export default function RootLayout() {
+  return (
+    <LanguageProvider>
+      <TabLayout />
+    </LanguageProvider>
+  );
+}
+
+function TabLayout() {
+  const { t } = useLanguage();
   const colorScheme = useColorScheme();
   const themeColors = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
 
@@ -38,13 +48,14 @@ export default function TabLayout() {
             color: themeColors.text,
           },
           headerTitleAlign: 'center',
+          headerRight: () => <LanguageToggle />,
         }}
       >
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Özet',
-            headerTitle: 'Atletik Güç & Beslenme',
+            title: t.tabSummary,
+            headerTitle: t.tabSummaryHeader,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="stats-chart" size={size} color={color} />
             ),
@@ -53,8 +64,8 @@ export default function TabLayout() {
         <Tabs.Screen
           name="workout"
           options={{
-            title: 'Antrenman',
-            headerTitle: 'Antrenman Takibi',
+            title: t.tabWorkout,
+            headerTitle: t.tabWorkoutHeader,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="barbell" size={size} color={color} />
             ),
@@ -63,8 +74,8 @@ export default function TabLayout() {
         <Tabs.Screen
           name="nutrition"
           options={{
-            title: 'Beslenme',
-            headerTitle: 'Beslenme & Makrolar',
+            title: t.tabNutrition,
+            headerTitle: t.tabNutritionHeader,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="restaurant" size={size} color={color} />
             ),
@@ -73,8 +84,8 @@ export default function TabLayout() {
         <Tabs.Screen
           name="budget"
           options={{
-            title: 'Market & Stok',
-            headerTitle: 'Market Harcaması & Cüzdan',
+            title: t.tabBudget,
+            headerTitle: t.tabBudgetHeader,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="wallet" size={size} color={color} />
             ),
