@@ -20,8 +20,8 @@ An Expo (React Native) app for tracking a 12-week training program, daily nutrit
 
 ### 1. Projeyi indir
 ```bash
-git clone https://github.com/alperyoltay/atletik-guc.git
-cd atletik-guc
+git clone https://github.com/alperyoltay/fitness-tracker.git
+cd fitness-tracker
 ```
 
 ### 2. Bağımlılıkları kur
@@ -67,8 +67,8 @@ Derleme bitince EAS bir indirme bağlantısı verir. Kendi Expo hesabınla derle
 
 ### 1. Clone the project
 ```bash
-git clone https://github.com/alperyoltay/atletik-guc.git
-cd atletik-guc
+git clone https://github.com/alperyoltay/fitness-tracker.git
+cd fitness-tracker
 ```
 
 ### 2. Install dependencies
