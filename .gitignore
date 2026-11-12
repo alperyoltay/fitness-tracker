@@ -45,3 +45,7 @@ app-example
 # agent
 .agent/
 .claude/
+
+# personal notes
+antreman.txt
+guc_ve_beslenme_programi.md
